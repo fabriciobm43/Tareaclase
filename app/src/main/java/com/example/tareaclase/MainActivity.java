@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
         getPermission(permisos);
         camara=findViewById(R.id.btn_camara);
+        imageView=findViewById(R.id.imageView);
         camara.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -96,13 +97,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        /*if(requestCode==1&&resultCode==RESULT_OK){
+        if(requestCode==1&&resultCode==RESULT_OK){
             Bundle extras=data.getExtras();
             Bitmap bitmap=(Bitmap) extras.get("data");
             imageView.setImageBitmap(bitmap);
-        }*/
+        }
        if (resultCode == RESULT_CANCELED) {
-            //Cancelado por el usuario
         }
         if ((resultCode == RESULT_OK) && (requestCode == 10)) {
 
@@ -122,7 +122,6 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception e) {
                 Toast.makeText(this.getApplicationContext(),"Error: "  + e.getMessage(),Toast.LENGTH_LONG).show();
             }
-            //txt.setText();
         }
 
 
