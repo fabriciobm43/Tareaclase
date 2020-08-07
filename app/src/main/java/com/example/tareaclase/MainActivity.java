@@ -3,6 +3,7 @@ package com.example.tareaclase;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.documentfile.provider.DocumentFile;
 
 import android.Manifest;
 import android.app.DownloadManager;
@@ -15,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -29,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     TextView txt;
     ImageView imageView;
     Button camara;
+    String uri;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,28 +87,12 @@ public class MainActivity extends AppCompatActivity {
     }
     public void BajarDoc(View view){
 
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*");
-        startActivityForResult(Intent.createChooser(intent, "Choose File"), 1);
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        startActivityForResult(intent, 10);
 
-
-        String url = "https://www.uteq.edu.ec/revistacyt/archivositio/instrucciones_arbitros.pdf";
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-        request.setDescription("PDF");
-        request.setTitle("Pdf");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            request.allowScanningByMediaScanner();
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        }
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "filedownload.pdf");
-        DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-        try {
-            manager.enqueue(request);
-        } catch (Exception e) {
-            Toast.makeText(this.getApplicationContext(),"Error: "  + e.getMessage(),Toast.LENGTH_LONG).show();
-        }
 
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -117,15 +104,33 @@ public class MainActivity extends AppCompatActivity {
        if (resultCode == RESULT_CANCELED) {
             //Cancelado por el usuario
         }
-        if ((resultCode == RESULT_OK) && (requestCode == 1)) {
-            //Procesar el resultado
-            Uri uri = data.getData(); //obtener el uri content
-            txt=findViewById(R.id.txtprueba);
-            txt.setText(uri.toString());
-            Bundle extras=data.getExtras();
-            Bitmap bitmap=(Bitmap) extras.get("data");
-            imageView.setImageBitmap(bitmap);
+        if ((resultCode == RESULT_OK) && (requestCode == 10)) {
+
+            uri = data.getData().getPath();
+            String url = "https://auto.suzuki.es/catalogos/pdf/CATALOGO_VITARA_WEB.pdf";
+            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+            request.setDescription("PDF");
+            request.setTitle("Pdf");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                request.allowScanningByMediaScanner();
+                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+            }
+            request.setDestinationInExternalPublicDir(uri, "filedownload.pdf");
+            DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+            try {
+                manager.enqueue(request);
+            } catch (Exception e) {
+                Toast.makeText(this.getApplicationContext(),"Error: "  + e.getMessage(),Toast.LENGTH_LONG).show();
+            }
+            //txt.setText();
         }
+
+
+    }
+    private void getSDCardAccess(){
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        Uri uri = Uri.parse(Environment.getExternalStorageDirectory().getPath());
+        startActivityForResult(intent, 1);
     }
     public void cargarcamara(){
         Intent intent=new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
