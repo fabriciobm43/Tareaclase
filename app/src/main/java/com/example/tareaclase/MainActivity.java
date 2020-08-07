@@ -1,23 +1,34 @@
 package com.example.tareaclase;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
 import android.app.DownloadManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+
+    TextView txt;
+    ImageView imageView;
+    Button camara;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,6 +41,14 @@ public class MainActivity extends AppCompatActivity {
 
 
         getPermission(permisos);
+        camara=findViewById(R.id.btn_camara);
+        camara.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cargarcamara();
+            }
+        });
+
     }
     public void getPermission(ArrayList<String> permisosSolicitados){
 
@@ -64,6 +83,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public void BajarDoc(View view){
+
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");
+        startActivityForResult(Intent.createChooser(intent, "Choose File"), 1);
+
+
         String url = "https://www.uteq.edu.ec/revistacyt/archivositio/instrucciones_arbitros.pdf";
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
         request.setDescription("PDF");
@@ -81,4 +106,32 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        /*if(requestCode==1&&resultCode==RESULT_OK){
+            Bundle extras=data.getExtras();
+            Bitmap bitmap=(Bitmap) extras.get("data");
+            imageView.setImageBitmap(bitmap);
+        }*/
+       if (resultCode == RESULT_CANCELED) {
+            //Cancelado por el usuario
+        }
+        if ((resultCode == RESULT_OK) && (requestCode == 1)) {
+            //Procesar el resultado
+            Uri uri = data.getData(); //obtener el uri content
+            txt=findViewById(R.id.txtprueba);
+            txt.setText(uri.toString());
+            Bundle extras=data.getExtras();
+            Bitmap bitmap=(Bitmap) extras.get("data");
+            imageView.setImageBitmap(bitmap);
+        }
+    }
+    public void cargarcamara(){
+        Intent intent=new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if(intent.resolveActivity(getPackageManager())!=null){
+            startActivityForResult(intent, 1);
+        }
+    }
+
 }
